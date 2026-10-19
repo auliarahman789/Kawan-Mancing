@@ -776,3 +776,9 @@ span.flatpickr-weekday,
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }
+
+/* ===== Kawan Mancing ===== */
+.font-game { font-family: "Lilita One", Outfit, sans-serif; letter-spacing: 0.02em; }
+/* Tailwind preflight merusak tile Leaflet tanpa ini */
+.leaflet-container { font-family: inherit; background: #0c4a6e; }
+.leaflet-container img, .leaflet-container .leaflet-tile { max-width: none !important; max-height: none !important; }
