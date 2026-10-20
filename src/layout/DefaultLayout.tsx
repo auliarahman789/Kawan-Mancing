@@ -4,13 +4,14 @@ import { NavLink } from "react-router";
 const TABS = [
   { to: "/", icon: "🏠", label: "Beranda" },
   { to: "/peta", icon: "🗺️", label: "Peta" },
+  { to: "/profil", icon: "👤", label: "Profil" },
 ];
 
 export default function DefaultLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-slate-950 pb-20 text-white">
       {children}
-      <nav className="fixed inset-x-0 bottom-0 z-[1200] grid h-20 grid-cols-2 border-t-2 border-cyan-800 bg-slate-900/95 backdrop-blur">
+      <nav className="fixed inset-x-0 bottom-0 z-[1200] grid h-20 grid-cols-3 border-t-2 border-cyan-800 bg-slate-900/95 backdrop-blur">
         {TABS.map((t) => (
           <NavLink
             key={t.to}

@@ -58,7 +58,7 @@ export default function HomePage() {
       <div className="mx-auto max-w-xl space-y-5 p-4">
         <header className="rounded-3xl border-2 border-amber-400 bg-gradient-to-br from-cyan-700 to-teal-900 p-5 shadow-lg">
           <button onClick={rename} className="text-left">
-            <p className="font-game text-3xl">{me?.nickname ?? "Memuat..."} ✏️</p>
+            <p className="font-game text-3xl">{me ? `${me.avatar} ${me.nickname}` : "Memuat..."} ✏️</p>
           </button>
           <p className="text-lg text-cyan-100">{titleFor(lvl)}</p>
           <div className="mt-3 flex items-end justify-between">
