@@ -136,11 +136,11 @@ export default function SessionPage() {
     <DefaultLayout>
       <div className="mx-auto max-w-xl space-y-4 p-4">
         <FishingScene type={info?.water_type ?? "sungai"} hour={hour} weather={weather} catchKey={catchKey}>
-          <p className="font-game text-2xl">{info?.name ?? "..."}</p>
-          <p className="font-game text-6xl text-amber-300">{info ? fmt(now - new Date(info.started_at).getTime()) : "--:--:--"}</p>
+          <p className="font-game text-5xl text-amber-300">{info ? fmt(now - new Date(info.started_at).getTime()) : "--:--:--"}</p>
+          <p className="font-game text-xl">{info?.name ?? "..."}</p>
           <p className="text-lg">🐟 {catches.length} ikan · +{totalXp} XP sesi ini</p>
           {wx && (
-            <p className="text-base">
+            <p className="text-base text-slate-300">
               {{ cerah: "☀️", mendung: "☁️", hujan: "🌧️", badai: "⛈️" }[wx.w]} {wx.temp}°C · angin {wx.wind} km/j ·{" "}
               <a href="https://open-meteo.com" target="_blank" rel="noreferrer" className="underline">Open-Meteo.com</a>
             </p>

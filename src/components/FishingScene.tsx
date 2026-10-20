@@ -42,13 +42,25 @@ const CSS = `
 .twinkle{animation:twinkle 2.5s ease-in-out infinite}
 @keyframes twinkle{50%{opacity:.2}}
 .rain{animation:rain .8s linear infinite}
-@keyframes rain{to{transform:translate(-30px,260px)}}
+@keyframes rain{to{transform:translate(-30px,350px)}}
 .flash{opacity:0;animation:flash 7s infinite}
 @keyframes flash{0%,89%,100%{opacity:0}90%{opacity:.8}91%{opacity:.1}92%{opacity:.6}94%{opacity:0}}
 .reel{opacity:0;animation:reel 1.8s ease-out 1 forwards}
 @keyframes reel{0%{opacity:0;transform:translateY(0) scale(.4)}35%{opacity:1;transform:translateY(-70px) scale(1.4) rotate(-15deg)}70%{opacity:1;transform:translateY(-50px) scale(1.3) rotate(15deg)}100%{opacity:0;transform:translateY(-10px) scale(.6)}}
 .splash{transform-box:fill-box;transform-origin:center;animation:splash 1s ease-out 1 forwards}
 @keyframes splash{from{transform:scale(.3);opacity:1}to{transform:scale(2.2);opacity:0}}
+.driftL{animation:driftL 12s linear infinite}
+@keyframes driftL{from{transform:translateX(460px)}to{transform:translateX(-60px)}}
+.rise{animation:rise 4s ease-in infinite}
+@keyframes rise{from{transform:translateY(0);opacity:.7}to{transform:translateY(-110px);opacity:0}}
+.flap{transform-box:fill-box;transform-origin:center;animation:flap .6s ease-in-out infinite}
+@keyframes flap{50%{transform:scaleY(.35)}}
+.wag{transform-box:fill-box;transform-origin:center;animation:wag .6s ease-in-out infinite}
+@keyframes wag{50%{transform:rotate(5deg)}}
+.dolphin{opacity:0;animation:dolphin 9s ease-in-out infinite}
+@keyframes dolphin{0%,68%,100%{opacity:0;transform:translate(-30px,10px) rotate(-30deg)}74%{opacity:1;transform:translate(0,-45px) rotate(-10deg)}82%{opacity:1;transform:translate(35px,-10px) rotate(40deg)}86%{opacity:0;transform:translate(50px,15px) rotate(60deg)}}
+.firefly{animation:twinkle 2s ease-in-out infinite,float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translate(8px,-10px)}}
 @media (prefers-reduced-motion:reduce){.scene *{animation:none!important}}
 `;
 
@@ -97,6 +109,24 @@ const Waves = () => (
   </g>
 );
 
+const FISH: Record<Water, string> = { sungai: "#e2e8f0", laut: "#fde68a", danau: "#fdba74", kolam: "#fb923c" };
+
+const Fish = ({ c, s = 1 }: { c: string; s?: number }) => (
+  <g transform={`scale(${s})`} opacity=".85">
+    <g className="wag">
+      <ellipse rx="22" ry="10" fill={c} />
+      <path d="M-20 0 L-36 -10 V10Z" fill={c} />
+    </g>
+    <circle cx="12" cy="-2" r="2.2" fill="#0f172a" />
+  </g>
+);
+
+const Bird = () => (
+  <g className="flap">
+    <path d="M-10 0 q5 -8 10 0 q5 -8 10 0" fill="none" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+  </g>
+);
+
 /** Pemancing + joran + pelampung yang sesekali tersentak (strike!) */
 function Fisher({ x, y, bx, by }: { x: number; y: number; bx: number; by: number }) {
   return (
@@ -116,27 +146,33 @@ function Fisher({ x, y, bx, by }: { x: number; y: number; bx: number; by: number
   );
 }
 
-const Mound = () => <path d={`M0 240 V${H + 22} Q50 ${H} 110 ${H + 22} V240Z`} fill="#16a34a" />;
+const Mound = () => <path d={`M0 330 V${H + 22} Q50 ${H} 110 ${H + 22} V330Z`} fill="#16a34a" />;
 
-interface SceneProps { type: Water; children: ReactNode; hour?: number; weather?: Weather; catchKey?: number }
+interface SceneProps { type: Water; timer?: ReactNode; children?: ReactNode; hour?: number; weather?: Weather; catchKey?: number }
 
-export default function FishingScene({ type, children, hour = 12, weather = "cerah", catchKey = 0 }: SceneProps) {
+export default function FishingScene({ type, timer, children, hour = 12, weather = "cerah", catchKey = 0 }: SceneProps) {
   const period = periodOf(hour);
   const [top, bottom] = weather !== "cerah" && period !== "malam" ? GREY[weather] : period === "siang" ? SKY[type] : SKY_T[period];
   const cloudC = weather === "cerah" ? "#fff" : weather === "mendung" ? "#cbd5e1" : "#64748b";
+  const birdsOk = period !== "malam" && (weather === "cerah" || weather === "mendung");
   const [bx, by] = type === "laut" ? [205, 218] : [150, 200];
   const gid = `sky-${type}`;
   return (
-    <div className="scene relative h-60 overflow-hidden rounded-3xl border-2 border-amber-400">
+    <div className="scene overflow-hidden rounded-3xl border-2 border-amber-400">
+      <div className="relative h-80">
       <style>{CSS}</style>
-      <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden="true">
+      <svg viewBox="0 0 400 330" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden="true">
         <defs>
           <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor={top} />
             <stop offset="1" stopColor={bottom} />
           </linearGradient>
+        <linearGradient id="depth" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#000" stopOpacity="0" />
+            <stop offset="1" stopColor="#000" stopOpacity=".35" />
+          </linearGradient>
         </defs>
-        <rect width="400" height="240" fill={`url(#${gid})`} />
+        <rect width="400" height="330" fill={`url(#${gid})`} />
 
         {period === "malam" && [[40, 30], [90, 55], [150, 25], [210, 60], [260, 30], [370, 75], [20, 85]].map(([x, y], i) => (
           <circle key={i} className="twinkle" style={{ animationDelay: `${-i * 0.5}s` }} cx={x} cy={y} r="1.6" fill="#fff" />
@@ -159,6 +195,11 @@ export default function FishingScene({ type, children, hour = 12, weather = "cer
           ))}
         <Cloud y={40} dur={50} delay={0} c={cloudC} />
         <Cloud y={72} dur={70} delay={-30} c={cloudC} />
+        {birdsOk && [[46, 22, 0], [60, 26, -9], [52, 30, -16]].map(([y, d, dl], i) => (
+          <g key={i} className="drift" style={{ animationDuration: `${d}s`, animationDelay: `${dl}s` }}>
+            <g transform={`translate(0 ${y})`}><Bird /></g>
+          </g>
+        ))}
 
         {type === "sungai" && (
           <>
@@ -180,8 +221,23 @@ export default function FishingScene({ type, children, hour = 12, weather = "cer
           </>
         )}
 
-        <rect y={H} width="400" height={240 - H} fill={WATER[type]} />
+        <rect y={H} width="400" height={330 - H} fill={WATER[type]} />
         <Waves />
+        <rect y={H} width="400" height={330 - H} fill="url(#depth)" />
+        <g transform="translate(0 255)">
+          <g className="drift" style={{ animationDuration: "18s" }}><Fish c={FISH[type]} s={1.5} /></g>
+        </g>
+        {[0, 1, 2].map((i) => (
+          <g key={i} transform={`translate(0 ${286 + i * 9})`}>
+            <g className="driftL" style={{ animationDuration: "12s", animationDelay: `${-i * 0.9}s` }}>
+              <g transform="scale(-1 1)"><Fish c={FISH[type]} s={0.55} /></g>
+            </g>
+          </g>
+        ))}
+        {[150, 205, 265, 330, 372].map((x, i) => (
+          <circle key={x} className="rise" style={{ animationDelay: `${-i * 1.1}s`, animationDuration: `${3 + i * 0.5}s` }}
+            cx={x} cy={325} r={2 + (i % 3)} fill="none" stroke="#fff" strokeWidth="1" />
+        ))}
 
         {type === "sungai" && (
           <g>
@@ -209,8 +265,8 @@ export default function FishingScene({ type, children, hour = 12, weather = "cer
           </>
         )}
         {type === "laut" && (
-          <g className="drift" style={{ animationDuration: "30s" }}>
-            <path d="M0 55 q6 -7 12 0 q6 -7 12 0" fill="none" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+          <g transform="translate(270 190)">
+            <text className="dolphin" fontSize="34" textAnchor="middle">🐬</text>
           </g>
         )}
 
@@ -226,8 +282,11 @@ export default function FishingScene({ type, children, hour = 12, weather = "cer
             <Fisher x={55} y={H + 11} bx={150} by={200} />
           </>
         )}
-        {period === "malam" && <rect width="400" height="240" fill="#0b1226" opacity=".45" />}
-        {period === "sore" && <rect width="400" height="240" fill="#f97316" opacity=".08" />}
+        {period === "malam" && <rect width="400" height="330" fill="#0b1226" opacity=".45" />}
+        {period === "malam" && type !== "laut" && [[200, 140], [240, 120], [285, 150], [335, 130], [120, 115], [365, 110]].map(([x, y], i) => (
+          <circle key={i} className="firefly" style={{ animationDelay: `${-i * 0.9}s` }} cx={x} cy={y} r="2.4" fill="#fde047" />
+        ))}
+        {period === "sore" && <rect width="400" height="330" fill="#f97316" opacity=".08" />}
         {(weather === "hujan" || weather === "badai") && (
           <g stroke="#bfdbfe" strokeWidth="1.2" opacity=".6">
             {Array.from({ length: 26 }, (_, i) => (
@@ -236,7 +295,7 @@ export default function FishingScene({ type, children, hour = 12, weather = "cer
             ))}
           </g>
         )}
-        {weather === "badai" && <rect className="flash" width="400" height="240" fill="#fff" />}
+        {weather === "badai" && <rect className="flash" width="400" height="330" fill="#fff" />}
         {catchKey > 0 && (
           <g key={catchKey} transform={`translate(${bx} ${by})`}>
             <ellipse className="splash" rx="14" ry="5" fill="none" stroke="#fff" strokeWidth="2" />
@@ -245,11 +304,9 @@ export default function FishingScene({ type, children, hour = 12, weather = "cer
         )}
       </svg>
 
-      <div className="absolute inset-0 flex items-center justify-center p-3">
-        <div className="rounded-2xl bg-black/40 px-5 py-3 text-center text-white backdrop-blur-sm" style={{ textShadow: "0 2px 8px rgba(0,0,0,.7)" }}>
-          {children}
-        </div>
+      {timer && <div className="absolute inset-x-0 top-2 flex justify-center">{timer}</div>}
       </div>
+      {children && <div className="bg-slate-900/95 px-4 py-3 text-center text-white">{children}</div>}
     </div>
   );
 }
