@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import type { User } from "@supabase/supabase-js";
 import DefaultLayout from "../../layout/DefaultLayout";
 import { supabase } from "../../lib/supabase";
+import ProfileTabs from "../../components/ProfileTabs";
 import { useMe } from "../../lib/useMe";
 import { BTN, INPUT, levelFromXp, titleFor, xpForLevel } from "../../lib/game";
 
@@ -18,12 +19,15 @@ export default function ProfilePage() {
   const [pw, setPw] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [fc, setFc] = useState({ er: 0, ing: 0 });
 
   useEffect(() => { supabase.auth.getUser().then(({ data }) => setUser(data.user)); }, []);
   useEffect(() => {
     if (!me) return;
     setNick(me.nickname);
-    supabase.from("catches").select("weight_kg").eq("user_id", me.id).then(({ data }) => {
+    supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", me.id).then(({ count }) => setFc((c) => ({ ...c, er: count ?? 0 })));
+    supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", me.id).then(({ count }) => setFc((c) => ({ ...c, ing: count ?? 0 })));
+    supabase.from("catches").select("weight_kg").eq("user_id", me.id).is("deleted_at", null).then(({ data }) => {
       const w = ((data ?? []) as unknown as { weight_kg: number }[]).map((r) => Number(r.weight_kg));
       setStats({ n: w.length, kg: w.reduce((a, b) => a + b, 0), max: Math.max(0, ...w) });
     });
@@ -61,6 +65,7 @@ export default function ProfilePage() {
           <p className="text-7xl">{me?.avatar ?? "🎣"}</p>
           <p className="font-game text-3xl">{me?.nickname ?? "Memuat..."}</p>
           <p className="text-lg text-cyan-100">{user?.is_anonymous ? "Akun tamu" : user?.email}</p>
+          <p className="text-lg">{fc.er} pengikut · {fc.ing} mengikuti</p>
           <p className="mt-2 font-game text-4xl text-amber-300">LV {lvl} · {titleFor(lvl)}</p>
           <div className="mt-2 h-4 overflow-hidden rounded-full bg-black/40">
             <div className="h-full bg-gradient-to-r from-amber-300 to-orange-500" style={{ width: `${pct}%` }} />
@@ -101,6 +106,8 @@ export default function ProfilePage() {
 
         {msg && <p className="text-center text-lg text-emerald-300">{msg}</p>}
         <button className="w-full rounded-2xl border-2 border-red-800 p-4 text-lg text-red-300" onClick={logout}>Keluar</button>
+
+        {me && <ProfileTabs userId={me.id} meId={me.id} />}
       </div>
     </DefaultLayout>
   );

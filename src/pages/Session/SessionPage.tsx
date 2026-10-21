@@ -41,7 +41,7 @@ export default function SessionPage() {
     const r = s as unknown as { spot_id: string; started_at: string; status: string; spots: { name: string; water_type: Water; lat: number; lng: number } | null } | null;
     if (r) setInfo({ spot_id: r.spot_id, started_at: r.started_at, status: r.status, name: r.spots?.name ?? "Spot", water_type: r.spots?.water_type ?? "sungai", lat: r.spots?.lat ?? 0, lng: r.spots?.lng ?? 0 });
     const { data: c } = await supabase.from("catches").select("id,weight_kg,species,photo_url,caught_at")
-      .eq("session_id", id).order("caught_at", { ascending: false });
+      .eq("session_id", id).is("deleted_at", null).order("caught_at", { ascending: false });
     setCatches((c ?? []) as unknown as CatchRow[]);
   }, [id]);
 

@@ -27,3 +27,11 @@ export const titleFor = (lvl: number) => TITLES[Math.min(Math.floor((lvl - 1) / 
 // class UI besar untuk mobile
 export const INPUT = "w-full rounded-2xl border-2 border-cyan-700 bg-slate-800 p-4 text-xl text-white placeholder:text-slate-500 focus:border-amber-400 focus:outline-none";
 export const BTN = "block w-full rounded-2xl border-b-4 border-orange-700 bg-gradient-to-b from-amber-300 to-orange-500 p-4 text-center font-game text-2xl text-slate-900 active:translate-y-1 active:border-b-0 disabled:opacity-50";
+
+export const ago = (iso: string) => {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return "baru saja";
+  if (s < 3600) return `${Math.floor(s / 60)} mnt lalu`;
+  if (s < 86400) return `${Math.floor(s / 3600)} jam lalu`;
+  return `${Math.floor(s / 86400)} hari lalu`;
+};

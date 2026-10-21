@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import DefaultLayout from "../../layout/DefaultLayout";
 import { ensureUser, idOf, supabase } from "../../lib/supabase";
 import { BTN, INPUT, Spot, WATER, Water } from "../../lib/game";
@@ -132,6 +132,7 @@ export default function MapPage() {
               <>
                 <p className="font-game text-3xl text-amber-300">{sel.name}</p>
                 <p className="text-lg">{WATER[sel.water_type]} · ⭐ {sel.rating_count ? Number(sel.rating_avg).toFixed(1) : "-"} ({sel.rating_count})</p>
+                <Link to={`/spot/${sel.id}`} className="block rounded-2xl border-2 border-cyan-700 p-3 text-center text-lg text-cyan-300">🖼️ Lihat galeri tangkapan</Link>
                 <button className={BTN} disabled={busy} onClick={start}>🎣 MULAI MANCING</button>
               </>
             )}

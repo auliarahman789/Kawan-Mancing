@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import BellLink from "../../components/BellLink";
 import DefaultLayout from "../../layout/DefaultLayout";
 import { supabase } from "../../lib/supabase";
 import { useMe } from "../../lib/useMe";
@@ -18,7 +19,7 @@ const TREN = [
 ];
 
 interface CatchRow { id: string; weight_kg: number; species: string | null; caught_at: string }
-interface Top { id: string; nickname: string; xp: number }
+interface Top { id: string; nickname: string; xp: number; avatar: string }
 
 export default function HomePage() {
   const { me, error, reload } = useMe();
@@ -33,10 +34,10 @@ export default function HomePage() {
         const r = data as unknown as { id: string; spots: { name: string } | null } | null;
         setActive(r ? { id: r.id, name: r.spots?.name ?? "Spot" } : null);
       });
-    supabase.from("catches").select("id,weight_kg,species,caught_at").eq("user_id", me.id)
+    supabase.from("catches").select("id,weight_kg,species,caught_at").eq("user_id", me.id).is("deleted_at", null)
       .order("caught_at", { ascending: false }).limit(5)
       .then(({ data }) => setRecent((data ?? []) as unknown as CatchRow[]));
-    supabase.from("profiles").select("id,nickname,xp").order("xp", { ascending: false }).limit(5)
+    supabase.from("profiles").select("id,nickname,xp,avatar").order("xp", { ascending: false }).limit(5)
       .then(({ data }) => setTop((data ?? []) as unknown as Top[]));
   }, [me]);
 
@@ -56,7 +57,8 @@ export default function HomePage() {
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-xl space-y-5 p-4">
-        <header className="rounded-3xl border-2 border-amber-400 bg-gradient-to-br from-cyan-700 to-teal-900 p-5 shadow-lg">
+        <header className="relative rounded-3xl border-2 border-amber-400 bg-gradient-to-br from-cyan-700 to-teal-900 p-5 shadow-lg">
+          <div className="absolute right-4 top-4"><BellLink /></div>
           <button onClick={rename} className="text-left">
             <p className="font-game text-3xl">{me ? `${me.avatar} ${me.nickname}` : "Memuat..."} ✏️</p>
           </button>
@@ -100,10 +102,10 @@ export default function HomePage() {
           <h2 className="mb-2 font-game text-2xl text-amber-300">🏆 Papan Peringkat</h2>
           <div className="space-y-2">
             {top.map((p, i) => (
-              <div key={p.id} className={`flex items-center justify-between rounded-2xl p-4 text-lg ${p.id === me?.id ? "bg-amber-500/20" : "bg-slate-800"}`}>
-                <span>{["🥇", "🥈", "🥉"][i] ?? `#${i + 1}`} {p.nickname}</span>
+              <Link key={p.id} to={p.id === me?.id ? "/profil" : `/pemancing/${p.id}`} className={`flex items-center justify-between rounded-2xl p-4 text-lg ${p.id === me?.id ? "bg-amber-500/20" : "bg-slate-800"}`}>
+                <span>{["🥇", "🥈", "🥉"][i] ?? `#${i + 1}`} {p.avatar} {p.nickname}</span>
                 <span className="font-game text-cyan-300">LV {levelFromXp(p.xp)} · {p.xp} XP</span>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
