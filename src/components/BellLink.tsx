@@ -6,6 +6,9 @@ export default function BellLink() {
   const [n, setN] = useState(0);
   useEffect(() => {
     supabase.from("notifications").select("id", { count: "exact", head: true }).eq("is_read", false).then(({ count }) => setN(count ?? 0));
+    const inc = () => setN((x) => x + 1); // dikirim NotifToaster saat notifikasi realtime masuk
+    window.addEventListener("notif:new", inc);
+    return () => window.removeEventListener("notif:new", inc);
   }, []);
   return (
     <Link to="/notifikasi" className="relative text-3xl" aria-label="Notifikasi">

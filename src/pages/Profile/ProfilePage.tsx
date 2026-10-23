@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { User } from "@supabase/supabase-js";
 import DefaultLayout from "../../layout/DefaultLayout";
 import { supabase } from "../../lib/supabase";
@@ -20,11 +20,13 @@ export default function ProfilePage() {
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [fc, setFc] = useState({ er: 0, ing: 0 });
+  const [admin, setAdmin] = useState(false);
 
   useEffect(() => { supabase.auth.getUser().then(({ data }) => setUser(data.user)); }, []);
   useEffect(() => {
     if (!me) return;
     setNick(me.nickname);
+    supabase.rpc("is_admin").then(({ data }) => setAdmin(data === true));
     supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", me.id).then(({ count }) => setFc((c) => ({ ...c, er: count ?? 0 })));
     supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", me.id).then(({ count }) => setFc((c) => ({ ...c, ing: count ?? 0 })));
     supabase.from("catches").select("weight_kg").eq("user_id", me.id).is("deleted_at", null).then(({ data }) => {
@@ -106,6 +108,7 @@ export default function ProfilePage() {
 
         {msg && <p className="text-center text-lg text-emerald-300">{msg}</p>}
         <button className="w-full rounded-2xl border-2 border-red-800 p-4 text-lg text-red-300" onClick={logout}>Keluar</button>
+        {admin && <Link to="/admin" className="block rounded-2xl border-2 border-amber-400 p-4 text-center text-lg text-amber-300">🛡️ Panel Admin (moderasi)</Link>}
 
         {me && <ProfileTabs userId={me.id} meId={me.id} />}
       </div>

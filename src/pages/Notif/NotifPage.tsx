@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router";
 import DefaultLayout from "../../layout/DefaultLayout";
 import { supabase } from "../../lib/supabase";
@@ -12,7 +12,7 @@ interface N {
 export default function NotifPage() {
   const [items, setItems] = useState<N[] | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     supabase.from("notifications")
       .select("id,type,catch_id,actor_id,info,is_read,created_at,profiles!actor_id(nickname,avatar)")
       .order("created_at", { ascending: false }).limit(30)
@@ -22,6 +22,12 @@ export default function NotifPage() {
         if (r.some((x) => !x.is_read)) supabase.from("notifications").update({ is_read: true }).eq("is_read", false).then(() => {});
       });
   }, []);
+
+  useEffect(() => {
+    load();
+    window.addEventListener("notif:new", load); // notifikasi baru langsung muncul di daftar
+    return () => window.removeEventListener("notif:new", load);
+  }, [load]);
 
   const text = (n: N) =>
     n.type === "like" ? "menyukai tangkapanmu ❤️" : n.type === "comment" ? `mengomentari: “${n.info ?? ""}”` : "mulai mengikutimu 👤";

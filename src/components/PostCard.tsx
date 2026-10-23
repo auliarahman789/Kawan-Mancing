@@ -22,6 +22,7 @@ export default function PostCard({ post, meId, liked: liked0, onDeleted }: { pos
   const [text, setText] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [guest, setGuest] = useState(false);
   const [rep, setRep] = useState<{ catchId?: string; commentId?: string } | null>(null);
   const mine = post.user_id === meId;
 
@@ -40,6 +41,8 @@ export default function PostCard({ post, meId, liked: liked0, onDeleted }: { pos
     if (!next) return;
     const { data } = await supabase.from("catch_comments").select(CSEL).eq("catch_id", post.id).order("created_at");
     setComments((data ?? []) as unknown as Comment[]);
+    const { data: s } = await supabase.auth.getSession();
+    setGuest(!!s.session?.user.is_anonymous);
   };
 
   const send = async () => {
@@ -100,11 +103,17 @@ export default function PostCard({ post, meId, liked: liked0, onDeleted }: { pos
                   : <button onClick={() => setRep({ commentId: c.id })} className="text-slate-500" aria-label="Laporkan komentar">🚩</button>}
               </div>
             ))}
+            {guest ? (
+              <Link to="/profil" className="block rounded-2xl border-2 border-cyan-700 p-3 text-center text-lg text-cyan-300">
+                🔐 Daftarkan email di Profil untuk ikut berkomentar
+              </Link>
+            ) : (
             <div className="flex gap-2">
               <input className="min-w-0 flex-1 rounded-2xl border-2 border-cyan-700 bg-slate-800 p-3 text-lg text-white placeholder:text-slate-500"
                 maxLength={300} placeholder="Tulis komentar..." value={text} onChange={(e) => setText(e.target.value)} />
               <button className="rounded-2xl bg-amber-400 px-4 text-xl text-slate-900 disabled:opacity-50" disabled={busy} onClick={send}>➤</button>
             </div>
+            )}
             {err && <p className="text-base text-red-300">{err}</p>}
           </div>
         )}

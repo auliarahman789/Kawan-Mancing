@@ -6,6 +6,7 @@ import SpotPage from "./pages/Spot/SpotPage";
 import UserPage from "./pages/User/UserPage";
 import NotifPage from "./pages/Notif/NotifPage";
 import PostPage from "./pages/Post/PostPage";
+import AdminPage from "./pages/Admin/AdminPage";
 import HomePage from "./pages/Home/HomePage";
 import MapPage from "./pages/Map/MapPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/post/:id" element={<PostPage />} />
           <Route path="/notifikasi" element={<NotifPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/peta" element={<MapPage />} />
           <Route path="/spot/:id" element={<SpotPage />} />
           <Route path="/pemancing/:id" element={<UserPage />} />
